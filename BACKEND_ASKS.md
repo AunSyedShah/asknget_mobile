@@ -28,8 +28,8 @@ The backend session will not build these until the owner agrees.
 ### Owner's direction (2026-11-16, sent to the backend session)
 
 - **Payment methods come from the server.** Cash on delivery is one entry in `GET /payment-methods`, next to card, bank transfer, PayPal, Apple Pay and Google Pay. Each entry is `{type, label, available, reason}`. The app shows `available: false` entries as "Coming soon". This replaces the hard-coded `onlinePayments` and `cashOnDelivery` keys at checkout.
-- **Provinces come from a pre-approved list.** The app shows a picker and does not accept free text for new addresses. Proposed: the nine ZA provinces as ISO 3166-2 codes with labels (`ZA-EC` Eastern Cape, `ZA-FS` Free State, `ZA-GP` Gauteng, `ZA-KZN` KwaZulu-Natal, `ZA-LP` Limpopo, `ZA-MP` Mpumalanga, `ZA-NC` Northern Cape, `ZA-NW` North West, `ZA-WC` Western Cape). Admins can change labels, not codes. Address writes must use a listed code (422 otherwise). Existing free-text rows need a mapping rule.
-- **Open:** the backend's answer on the endpoint choice (`/regions/current` or `GET /provinces?country=ZA`), the enum values and `reason` format, the migration of existing addresses, and whether the owner must approve first.
+- **Region means the market (country), not a province.** The app runs in several countries, so "region" is the market the buyer is in. It is chosen from the server's list of active regions (`GET /regions`, currently ZA only) and carried by `X-Region`. The earlier province proposal (ISO 3166-2 codes, `GET /provinces`) is **withdrawn**. Do not build it.
+- **Open:** whether an address needs any sub-area field for ZA beyond the market. If it does, its name, and whether it is free text or a backend-owned list. Whether the market's `region_label` ("Province") should label that field. The enum values and `reason` format for `GET /payment-methods`.
 
 ## Gaps (comingSoon in the registry)
 
