@@ -25,6 +25,12 @@ The backend session will not build these until the owner agrees.
 | `GET /payment-methods` (public, market-scoped), returning `[{type, label, available, reason}]`. | The app shows card, PayPal, Apple Pay and Google Pay as coming soon from the server, not hard-coded. | `onlinePayments` is `comingSoon`. |
 | A per-market list of provinces, exposed on `GET /regions/current`. | A province picker for the ZA address form. | Free-text field until the owner decides. |
 
+### Owner's direction (2026-11-16, sent to the backend session)
+
+- **Payment methods come from the server.** Cash on delivery is one entry in `GET /payment-methods`, next to card, bank transfer, PayPal, Apple Pay and Google Pay. Each entry is `{type, label, available, reason}`. The app shows `available: false` entries as "Coming soon". This replaces the hard-coded `onlinePayments` and `cashOnDelivery` keys at checkout.
+- **Provinces come from a pre-approved list.** The app shows a picker and does not accept free text for new addresses. Proposed: the nine ZA provinces as ISO 3166-2 codes with labels (`ZA-EC` Eastern Cape, `ZA-FS` Free State, `ZA-GP` Gauteng, `ZA-KZN` KwaZulu-Natal, `ZA-LP` Limpopo, `ZA-MP` Mpumalanga, `ZA-NC` Northern Cape, `ZA-NW` North West, `ZA-WC` Western Cape). Admins can change labels, not codes. Address writes must use a listed code (422 otherwise). Existing free-text rows need a mapping rule.
+- **Open:** the backend's answer on the endpoint choice (`/regions/current` or `GET /provinces?country=ZA`), the enum values and `reason` format, the migration of existing addresses, and whether the owner must approve first.
+
 ## Gaps (comingSoon in the registry)
 
 | Key | Screen | What is missing in the API |
