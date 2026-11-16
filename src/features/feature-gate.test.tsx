@@ -77,8 +77,12 @@ describe('runIfLive', () => {
 });
 
 describe('registry', () => {
-  it('keeps cash on delivery live and online payments coming soon', () => {
-    expect(FEATURES.cashOnDelivery).toBe('live');
+  it('keeps cash on delivery and online payments coming soon until the backend has them', () => {
+    expect(FEATURES.cashOnDelivery).toBe('comingSoon');
     expect(FEATURES.onlinePayments).toBe('comingSoon');
+  });
+
+  it('keeps buyer chat coming soon until sign-in exists', () => {
+    expect(FEATURES.buyerChat).toBe('comingSoon');
   });
 });

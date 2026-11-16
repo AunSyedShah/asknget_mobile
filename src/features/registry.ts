@@ -32,11 +32,17 @@ export const FEATURES = {
   savedCards: 'comingSoon',
   /** FAQ rows on Product details. Not in the product payload. */
   productFaq: 'comingSoon',
-  /** Card, PayPal, Apple Pay and Google Pay. Cash on delivery is live. */
+  /** Card, PayPal, Apple Pay and Google Pay. No payment provider. */
   onlinePayments: 'comingSoon',
-  /** Cash on delivery at checkout. Confirmed by the owner for launch. */
-  cashOnDelivery: 'live',
-  /** Buyer chat (/me/conversations). Deployed; the app build is decided after backend confirms. */
+  /**
+   * Cash on delivery at checkout. The owner wants it live, but the API has no
+   * cash_on_delivery method yet. Waits for the backend proposal (BACKEND_ASKS.md).
+   */
+  cashOnDelivery: 'comingSoon',
+  /**
+   * Buyer chat (/me/conversations). Live on the backend, but every call needs a
+   * sign-in token, so it is built with the account slice, not before it.
+   */
   buyerChat: 'comingSoon',
 } as const satisfies Record<string, FeatureState>;
 
