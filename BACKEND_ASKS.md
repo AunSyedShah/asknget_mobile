@@ -38,19 +38,21 @@ Estimate: about 1.5 to 2 working days, as one PR into `main` that the owner merg
 - Owner decisions still open (they change the app copy): a maximum COD order value (optional `limits: {max_cents}` on the entry); whether `bank_transfer` is offered without bank details to show the buyer; refunds for COD orders (a manual step, since there is no original payment); whether COD needs a verified phone.
 - `/site-info` `accepted_payments` stays as footer text. The app ignores it.
 
-**Subdivisions (the province question)**
-- Extend `GET /regions/current` (additive) with `subdivisions: [{code, label}]`, ordered by label, active only. `region_label` already says what to call them ("Province" for ZA).
-- ZA codes as listed: `ZA-EC`, `ZA-FS`, `ZA-GP`, `ZA-KZN`, `ZA-LP`, `ZA-MP`, `ZA-NC`, `ZA-NW`, `ZA-WC`. Pakistan is seeded too (`PK-BA`, `PK-KP`, `PK-PB`, `PK-SD`, `PK-GB`, `PK-JK`, `PK-IS`). Codes are read-only after creation; staff edit labels and the active flag in Django admin.
-- `AddressIn` and `CheckoutAddressIn` accept a code **or** an exact label (case-insensitive) and store the code. Anything else is `422` with the allowed codes. The web app keeps sending free text.
-- Province stays optional in the schema. Making it required is a later, flagged breaking change.
-- Existing free-text rows are mapped by label in a migration. Unmapped rows keep their raw text as `province_label` with `province = null`, and go into a one-off report for staff. Orders keep their address snapshot.
-- Address reads return `province` (code) and `province_label`.
+**Subdivisions: WITHDRAWN (2026-11-16).** The backend will not build a province list. Nothing in the backend owns one, and nothing is planned. The earlier design (`subdivisions` on `GET /regions/current`, ISO codes) is void.
+
+**Address form (backend answer, 2026-11-16)**
+- An address is `full_name`, `phone`, `street_address`, `unit_floor` (optional), `city`, `province`, `postal_code`, `country`, `delivery_instructions` (optional).
+- `province` is **optional free text**, max 100 characters. There is no list. Pricing and delivery do not depend on it. Whether ZA couriers need it is a business question for the owner.
+- Label the `province` input with `region_label` from `GET /regions` or `GET /regions/current` (`country.region_label`: "Province" for ZA and PK, staff-editable). The word is not hard-coded. Naming clash: in the API, "region" means the market (`X-Region`).
+- **Send `country` explicitly** on saved addresses (`POST`/`PATCH /me/addresses`), using the market code from `GET /regions` (e.g. `ZA`). The schema defaults `country` to `PK` today, so an omitted value would store Pakistan. The backend will fix the default with its next PR, once the owner says go. Checkout's inline address may leave `country` blank: blank means the shopping market.
+- **Postal code is not checked by the server** beyond 2 to 20 characters. The app validates it client-side with the market's `postal_code_regex` (ZA: `^\d{4}$`) from `GET /regions/current`.
+- **Phone** uses the server's `PhoneStr` validator. Use the market's `phone_prefix` from `/regions` for the input hint.
 
 **Owner's direction (2026-11-16, sent to the backend session)**
 
 - **Payment methods come from the server.** Cash on delivery is one entry in `GET /payment-methods`, next to card, bank transfer, PayPal, Apple Pay and Google Pay. Each entry is `{type, label, available, reason}`. The app shows `available: false` entries as "Coming soon". This replaces the hard-coded `onlinePayments` and `cashOnDelivery` keys at checkout.
 - **Region means the market (country), not a province.** The app runs in several countries, so "region" is the market the buyer is in. It is chosen from the server's list of active regions (`GET /regions`, currently ZA only) and carried by `X-Region`. The earlier province proposal (ISO 3166-2 codes, `GET /provinces`) is **withdrawn**. Do not build it.
-- **Open:** whether an address needs any sub-area field for ZA beyond the market. If it does, its name, and whether it is free text or a backend-owned list. Whether the market's `region_label` ("Province") should label that field. The enum values and `reason` format for `GET /payment-methods`.
+- **Open:** the enum values and `reason` format for `GET /payment-methods` (answered above: machine codes). The owner must still decide whether ZA addresses need a province at all.
 
 ## Gaps (comingSoon in the registry)
 
