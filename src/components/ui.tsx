@@ -101,12 +101,22 @@ export function Loading() {
   );
 }
 
-/** Shows a server message, or a plain network message when the server could not be reached. */
+/**
+ * Shows the server's message, or a plain network message when there was no
+ * server answer. For the latter it adds the technical detail in small grey
+ * text, so a failure can be diagnosed from a screenshot.
+ */
 export function ErrorText({ error }: { error: unknown }) {
   if (!error) return null;
-  const message =
-    error instanceof ApiError ? error.message : 'We could not reach the server. Check your connection and try again.';
-  return <Text style={styles.errorText}>{message}</Text>;
+  if (error instanceof ApiError) return <Text style={styles.errorText}>{error.message}</Text>;
+
+  const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  return (
+    <View>
+      <Text style={styles.errorText}>We could not reach the server. Check your connection and try again.</Text>
+      <Text style={styles.hintText}>{detail.slice(0, 200)}</Text>
+    </View>
+  );
 }
 
 export function Row({ children, onPress }: { children: ReactNode; onPress?: () => void }) {

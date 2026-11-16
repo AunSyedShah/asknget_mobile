@@ -84,7 +84,8 @@ const sharedHeaders: Middleware = {
   },
 
   async onResponse({ request, response }) {
-    const isRefresh = new URL(request.url).pathname === REFRESH_PATH;
+    // Plain string check: React Native's URL class does not implement pathname.
+    const isRefresh = request.url.split('?')[0].endsWith(REFRESH_PATH);
     if (response.status !== 401 || isRefresh) return response;
 
     const refreshed = await refreshSession();

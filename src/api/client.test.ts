@@ -69,6 +69,29 @@ describe('shared headers', () => {
   });
 });
 
+describe('React Native runtime', () => {
+  // React Native's own URL class does not implement pathname (it throws). The
+  // client must not depend on URL parsing, or every response would fail.
+  it('still works when URL.pathname throws', async () => {
+    const RealURL = globalThis.URL;
+    class NoPathnameURL extends RealURL {
+      get pathname(): string {
+        throw new Error('URL.pathname is not implemented');
+      }
+    }
+    globalThis.URL = NoPathnameURL as unknown as typeof URL;
+    try {
+      fetchMock.mockImplementation(async () => json([{ id: '1' }]));
+      const api = createApiClient(fetchMock as unknown as typeof fetch);
+      const result = await api.GET('/api/v1/categories');
+      expect(result.response.status).toBe(200);
+      expect(result.data).toEqual([{ id: '1' }]);
+    } finally {
+      globalThis.URL = RealURL;
+    }
+  });
+});
+
 describe('session refresh on 401', () => {
   it('refreshes once and retries a GET with the new token', async () => {
     useSession.getState().setTokens({ accessToken: 'old', refreshToken: 'refresh-1' });
