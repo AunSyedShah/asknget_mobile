@@ -25,7 +25,28 @@ The backend session will not build these until the owner agrees.
 | `GET /payment-methods` (public, market-scoped), returning `[{type, label, available, reason}]`. | The app shows card, PayPal, Apple Pay and Google Pay as coming soon from the server, not hard-coded. | `onlinePayments` is `comingSoon`. |
 | A per-market list of provinces, exposed on `GET /regions/current`. | A province picker for the ZA address form. | Free-text field until the owner decides. |
 
-### Owner's direction (2026-11-16, sent to the backend session)
+### Backend answer (2026-11-16): designed, NOT built, waiting for the owner's yes in the backend chat
+
+Estimate: about 1.5 to 2 working days, as one PR into `main` that the owner merges. The backend will message the app when the owner decides and again when it is deployed. Until then the app keeps COD and the payment list `comingSoon` and uses a free-text province field.
+
+**Payment methods**
+- Types (snake_case): `card`, `bank_transfer`, `paypal`, `google_pay`, `apple_pay` (existing), plus `cash_on_delivery` (new).
+- `GET /payment-methods` (public, scoped by `X-Region`) returns `[{type, label, available, reason}]`, ordered by `sort_order`. `label` is display text in the request language. `reason` is a **machine code**, null when available: `coming_soon`, `not_configured`, `disabled`. The app maps codes to its own copy.
+- Every market lists every type. Availability is per market, set by staff, and also limited by what the code can really do. Card, PayPal, Apple Pay and Google Pay stay unavailable until a provider exists.
+- Checkout rejects an unavailable type with `409 payment_method_unavailable`.
+- COD: the order goes straight to `confirmed`, `payment_status` stays `unpaid`, becomes paid when the order is marked delivered, and sellers see it. Sellers no longer hide only `pending_payment` orders.
+- Owner decisions still open (they change the app copy): a maximum COD order value (optional `limits: {max_cents}` on the entry); whether `bank_transfer` is offered without bank details to show the buyer; refunds for COD orders (a manual step, since there is no original payment); whether COD needs a verified phone.
+- `/site-info` `accepted_payments` stays as footer text. The app ignores it.
+
+**Subdivisions (the province question)**
+- Extend `GET /regions/current` (additive) with `subdivisions: [{code, label}]`, ordered by label, active only. `region_label` already says what to call them ("Province" for ZA).
+- ZA codes as listed: `ZA-EC`, `ZA-FS`, `ZA-GP`, `ZA-KZN`, `ZA-LP`, `ZA-MP`, `ZA-NC`, `ZA-NW`, `ZA-WC`. Pakistan is seeded too (`PK-BA`, `PK-KP`, `PK-PB`, `PK-SD`, `PK-GB`, `PK-JK`, `PK-IS`). Codes are read-only after creation; staff edit labels and the active flag in Django admin.
+- `AddressIn` and `CheckoutAddressIn` accept a code **or** an exact label (case-insensitive) and store the code. Anything else is `422` with the allowed codes. The web app keeps sending free text.
+- Province stays optional in the schema. Making it required is a later, flagged breaking change.
+- Existing free-text rows are mapped by label in a migration. Unmapped rows keep their raw text as `province_label` with `province = null`, and go into a one-off report for staff. Orders keep their address snapshot.
+- Address reads return `province` (code) and `province_label`.
+
+**Owner's direction (2026-11-16, sent to the backend session)**
 
 - **Payment methods come from the server.** Cash on delivery is one entry in `GET /payment-methods`, next to card, bank transfer, PayPal, Apple Pay and Google Pay. Each entry is `{type, label, available, reason}`. The app shows `available: false` entries as "Coming soon". This replaces the hard-coded `onlinePayments` and `cashOnDelivery` keys at checkout.
 - **Region means the market (country), not a province.** The app runs in several countries, so "region" is the market the buyer is in. It is chosen from the server's list of active regions (`GET /regions`, currently ZA only) and carried by `X-Region`. The earlier province proposal (ISO 3166-2 codes, `GET /provinces`) is **withdrawn**. Do not build it.
