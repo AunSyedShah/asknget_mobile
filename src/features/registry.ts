@@ -40,10 +40,10 @@ export const FEATURES = {
    */
   cashOnDelivery: 'comingSoon',
   /**
-   * Buyer chat (/me/conversations). Live on the backend, but every call needs a
-   * sign-in token, so it is built with the account slice, not before it.
+   * Buyer chat (/me/conversations). Live on the backend. Signed-out users see a
+   * sign-in prompt instead of the chat.
    */
-  buyerChat: 'comingSoon',
+  buyerChat: 'live',
 } as const satisfies Record<string, FeatureState>;
 
 export type FeatureKey = keyof typeof FEATURES;
