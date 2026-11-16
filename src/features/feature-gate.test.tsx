@@ -82,7 +82,23 @@ describe('registry', () => {
     expect(FEATURES.onlinePayments).toBe('comingSoon');
   });
 
-  it('keeps buyer chat coming soon until sign-in exists', () => {
-    expect(FEATURES.buyerChat).toBe('comingSoon');
+  it('has buyer chat live, because the backend serves it', () => {
+    expect(FEATURES.buyerChat).toBe('live');
+  });
+
+  it('keeps every feature the backend cannot serve coming soon', () => {
+    const notServed = [
+      'wallet',
+      'liveTracking',
+      'socialAuth',
+      'imageSearch',
+      'voiceSearch',
+      'inboxPromos',
+      'inboxCoupons',
+      'inboxPriceDrops',
+      'savedCards',
+      'productFaq',
+    ] as const;
+    for (const key of notServed) expect(FEATURES[key]).toBe('comingSoon');
   });
 });

@@ -30,7 +30,9 @@
           "image": "./assets/images/splash-logo-white.png",
           "imageWidth": 200
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

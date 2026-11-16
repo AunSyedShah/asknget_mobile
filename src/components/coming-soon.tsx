@@ -17,6 +17,16 @@ type ComingSoonScreenProps = {
   onBack: () => void;
 };
 
+/** Inert icon button for a control that is not live (search camera, microphone). */
+export function ComingSoonIconBadge({ label }: { label: string }) {
+  return (
+    <View accessibilityRole="button" accessibilityLabel={`${label}: ${en.common.comingSoon}`} accessibilityState={{ disabled: true }} style={styles.iconBadge}>
+      <Text style={styles.iconBadgeText}>{label.charAt(0)}</Text>
+      <Text style={styles.iconBadgeCaption}>{en.common.comingSoon}</Text>
+    </View>
+  );
+}
+
 /** Full-screen empty state for a whole screen that is not live yet. Shows no fake data. */
 export function ComingSoonScreen({ title, onBack }: ComingSoonScreenProps) {
   return (
@@ -34,6 +44,17 @@ export function ComingSoonScreen({ title, onBack }: ComingSoonScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  iconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
+    backgroundColor: colors.peach,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.6,
+  },
+  iconBadgeText: { color: colors.brand, fontFamily: fontFamily.semibold, fontSize: fontSize.bodyLg },
+  iconBadgeCaption: { color: colors.muted, fontFamily: fontFamily.body, fontSize: 8 },
   badge: {
     alignSelf: 'flex-start',
     backgroundColor: colors.peach,

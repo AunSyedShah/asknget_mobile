@@ -70,11 +70,15 @@ Estimate: about 1.5 to 2 working days, as one PR into `main` that the owner merg
 | `productFaq` | 14 Product details: FAQ rows | `ProductDetailOut` has no FAQ field. |
 | `onlinePayments` | 29 Payment methods: card, PayPal, Apple Pay, Google Pay | No payment provider (see proposal 2). |
 | `cashOnDelivery` | Checkout: cash on delivery | No COD value in the API (see proposal 1). |
-| `buyerChat` | Track order "Contact Support", Inbox support | Live on the backend (answer 4), but needs sign-in. Built with the account slice. |
+
+Buyer chat is **not** a gap any more: it is `live` in the registry (answer 4). One piece stays out: the Track order "Contact Support" button. A chat needs a store id or slug, and an order item carries only a store name, so the app cannot open a chat from an order. **Ask:** add `store_id` (or `store_slug`) to `OrderItemOut`, or confirm a platform-support chat is planned. Until then, that button is shown as coming soon.
 
 ## Decisions that are not backend asks
 
-- The app is customer-only. Seller and staff accounts are refused at sign-in, from `is_seller` and `is_staff` (answer 5). This is built with the account slice.
-- Sign up, OTP and password reset are live in the app as the owner asked. A code will not reach a tester until mail or SMS is set up (answer 1). Screens must show a clear message when no code arrives.
+- The app is customer-only. Seller and staff accounts are refused at sign-in, from `is_seller` and `is_staff` (answer 5). Built.
+- Sign up, OTP and password reset are live in the app as the owner asked. A code will not reach a tester until mail or SMS is set up (answer 1). The screens say so when no code arrives.
+- Checkout stops before payment: cash on delivery and online payments are coming soon, so "Place order" is inert and nothing is submitted. Checkout needs a sign-in, because the app has no inline guest address form yet (the API supports guest checkout).
+- Backend features with no Figma screen are not built: returns requests (`/me/orders/{id}/returns`), writing a review, WhatsApp sign-in, saved-card creation.
+- Figma features with no backend are coming soon, one registry key each (table above). Onboarding screens (02-04) and the share button on Product details are not built.
 - The market is ZA only. The API origin is one build variable, `EXPO_PUBLIC_API_ORIGIN`, default `https://asknget.co.za`.
 - Later option, not built: let the server override the registry per market (a capabilities endpoint). The registry is shaped so this is a drop-in.
